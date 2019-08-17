@@ -13,7 +13,7 @@ public class NewsContract {
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
 
     // PATH_TableName
-    public static final String PATH_NEWS_TABLE = "savedNews";
+    public static final String PATH_NEWS_TABLE = "savedArticles";
 
     // MIME type for a list of news
     public static final String CONTENT_LIST_TYPE = ContentResolver.CURSOR_DIR_BASE_TYPE + "/"
@@ -32,7 +32,7 @@ public class NewsContract {
                 Uri.withAppendedPath(BASE_CONTENT_URI, PATH_NEWS_TABLE);
 
         // table savedNews name constant
-        public static final String TABLE_NAME = "savedNews";
+        public static final String TABLE_NAME = "savedArticles";
 
         // table savedNews columns
         public static final String _ID = BaseColumns._ID;

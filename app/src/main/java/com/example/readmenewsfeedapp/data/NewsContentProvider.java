@@ -94,19 +94,21 @@ public class NewsContentProvider extends ContentProvider {
 
         // values check
         String sectionName = values.getAsString(NewsEntry.COLUMN_ARTICLE_SECTION);
-        if (sectionName == null) { values.put(NewsEntry.COLUMN_ARTICLE_SECTION, "Error Saving Article"); }
+        //if (sectionName == null) { values.put(NewsEntry.COLUMN_ARTICLE_SECTION, "Error Saving Article"); }
 
         String webUrl = values.getAsString(NewsEntry.COLUMN_ARTICLE_WEB_URL);
-        if (webUrl == null) { values.put(NewsEntry.COLUMN_ARTICLE_WEB_URL, "0"); }
+        //if (webUrl == null) { values.put(NewsEntry.COLUMN_ARTICLE_WEB_URL, "0"); }
 
         String headLine = values.getAsString(NewsEntry.COLUMN_ARTICLE_HEADLINE);
-        if (headLine == null) { values.put(NewsEntry.COLUMN_ARTICLE_HEADLINE, "0"); }
+        //if (headLine == null) { values.put(NewsEntry.COLUMN_ARTICLE_HEADLINE, "0"); }
 
         String thumbnail = values.getAsString(NewsEntry.COLUMN_ARTICLE_THUMBNAIL);
-        if (thumbnail == null) { values.put(NewsEntry.COLUMN_ARTICLE_THUMBNAIL, "0"); }
+        //if (thumbnail == null) { values.put(NewsEntry.COLUMN_ARTICLE_THUMBNAIL, "0"); }
 
         String body = values.getAsString(NewsEntry.COLUMN_ARTICLE_BODY);
-        if (body == null) {values.put(NewsEntry.COLUMN_ARTICLE_BODY, "0"); }
+        //if (body == null) {values.put(NewsEntry.COLUMN_ARTICLE_BODY, "0"); }
+
+        Log.d("News Content Provider", sectionName + " " + webUrl + " " + headLine + " " + thumbnail + " " + body);
 
         // Insert new article with given values
         long id = wDatabase.insert(NewsEntry.TABLE_NAME, null, values);
