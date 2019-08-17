@@ -3,6 +3,7 @@ package com.example.readmenewsfeedapp.data;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import static com.example.readmenewsfeedapp.data.NewsContract.NewsEntry;
 
@@ -22,6 +23,8 @@ public class NewsDbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
+        Log.d("NewsDbHelper", "onCreateMethod");
+
         // CREATE TABLE savedNews
         String SQL_CREATE_NEWS_TABLE = "CREATE TABLE " + NewsEntry.TABLE_NAME + "(" +
                 NewsEntry._ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
@@ -29,7 +32,7 @@ public class NewsDbHelper extends SQLiteOpenHelper {
                 NewsEntry.COLUMN_ARTICLE_HEADLINE + " TEXT, " +
                 NewsEntry.COLUMN_ARTICLE_SECTION + " TEXT, " +
                 NewsEntry.COLUMN_ARTICLE_THUMBNAIL + " TEXT, " +
-                NewsEntry.COLUMN_ARTICLE_WEB_URL + " TEXT);" ;
+                NewsEntry.COLUMN_ARTICLE_WEB_URL + " TEXT);";
 
         sqLiteDatabase.execSQL(SQL_CREATE_NEWS_TABLE);
 

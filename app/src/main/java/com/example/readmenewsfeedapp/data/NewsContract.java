@@ -40,7 +40,7 @@ public class NewsContract {
         public static final String COLUMN_ARTICLE_SECTION = "section";
         public static final String COLUMN_ARTICLE_THUMBNAIL = "thumbnail";
         public static final String COLUMN_ARTICLE_BODY = "body";
-        public static final String COLUMN_ARTICLE_WEB_URL = "webUrl";
+        public static final String COLUMN_ARTICLE_WEB_URL = "online";
     }
 
 

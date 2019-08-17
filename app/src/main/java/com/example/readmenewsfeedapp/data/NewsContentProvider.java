@@ -33,7 +33,7 @@ public class NewsContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         mNewsDbHelper = new NewsDbHelper(getContext());
-        return false;
+        return true;
     }
 
     @Override

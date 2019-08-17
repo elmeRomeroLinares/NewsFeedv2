@@ -5,6 +5,8 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
+import com.example.readmenewsfeedapp.fragment.GeneralPagerFragment;
+
 public class CategoriesPagerAdapter extends FragmentPagerAdapter {
 
     // Categories in Pager Adapter
@@ -13,12 +15,10 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
     private static final String THIRD_CATEGORY = "Business";
     private static final String FOURTH_CATEGORY = "World news";
     private static final String FIFTH_CATEGORY = "Film";
-    private static final String SIXTH_CATEGORY = "Read Later";
+//    public static final String SIXTH_CATEGORY = "Read Later";
 
     // Number of Categories
-    private int mNumberOfCategories = 6;
-
-    private static int currentPosition;
+    private int mNumberOfCategories = 5;
 
 
     public CategoriesPagerAdapter(FragmentManager fm) {
@@ -27,20 +27,19 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        currentPosition = position;
         switch (position) {
             case 0:
-                return new GeneralPagerFragment(FIRST_CATEGORY);
+                return GeneralPagerFragment.getInstance(FIRST_CATEGORY,position);
             case 1:
-                return new GeneralPagerFragment(SECOND_CATEGORY);
+                return GeneralPagerFragment.getInstance(SECOND_CATEGORY, position);
             case 2:
-                return new GeneralPagerFragment(THIRD_CATEGORY);
+                return GeneralPagerFragment.getInstance(THIRD_CATEGORY,position);
             case 3:
-                return new GeneralPagerFragment(FOURTH_CATEGORY);
+                return GeneralPagerFragment.getInstance(FOURTH_CATEGORY,position);
             case 4:
-                return new GeneralPagerFragment(FIFTH_CATEGORY);
-            case 5:
-                return new GeneralPagerFragment(SIXTH_CATEGORY);
+                return GeneralPagerFragment.getInstance(FIFTH_CATEGORY,position);
+//            case 5:
+//                return GeneralPagerFragment.getInstance(SIXTH_CATEGORY);
         }
         return null;
     }
@@ -64,8 +63,8 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
                 return FOURTH_CATEGORY;
             case 4:
                 return FIFTH_CATEGORY;
-            case 5:
-                return SIXTH_CATEGORY;
+//            case 5:
+//                return SIXTH_CATEGORY;
             default:
                 return null;
         }
