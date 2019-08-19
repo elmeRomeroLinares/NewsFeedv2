@@ -70,10 +70,12 @@ public class DetailActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
+                break;
             case R.id.save_action_button:
-                saveArticle();                
+                saveArticle();
+                break;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
     }
 
     private void saveArticle() {
@@ -83,7 +85,7 @@ public class DetailActivity extends AppCompatActivity {
         values.put(NewsEntry.COLUMN_ARTICLE_BODY, mdata.getBody());
         values.put(NewsEntry.COLUMN_ARTICLE_THUMBNAIL, mdata.getThumbnail());
         values.put(NewsEntry.COLUMN_ARTICLE_HEADLINE, mdata.getHeadline());
-        //values.put(NewsEntry.COLUMN_ARTICLE_WEB_URL, mdata.getWebUrl());
+        values.put(NewsEntry.COLUMN_ARTICLE_WEB_URL, mdata.getWebUrl());
         values.put(NewsEntry.COLUMN_ARTICLE_SECTION, mdata.getSectionName());
 
         // Insert new article into provider, returning content URI for new article

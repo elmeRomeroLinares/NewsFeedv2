@@ -14,7 +14,7 @@ import javax.net.ssl.HttpsURLConnection;
 public class NetworkUtils {
 
     // Page number
-    private static int mPageNumber = 1;
+    private static int mPageNumber;
 
     // Base URL and parameters for API request
     private static final String GUARDIAN_BASE_URL =
@@ -28,10 +28,11 @@ public class NetworkUtils {
     private static final String KEY = "api-key";
 
     // Takes Search term and return JSON String
-    public String getArticleInfo(String newsCategory) {
+    public String getArticleInfo(String newsCategory, int page) {
         HttpURLConnection urlConnection = null;
         BufferedReader bufReader = null;
         String articleJSONString = null;
+        mPageNumber = page;
 
         try {
             // URI build and query issue

@@ -1,13 +1,19 @@
 package com.example.readmenewsfeedapp;
 
+import android.content.ContentValues;
+import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.readmenewsfeedapp.data.NewsContract;
 import com.example.readmenewsfeedapp.model.Article;
 
 import java.util.ArrayList;
@@ -15,13 +21,24 @@ import java.util.ArrayList;
 public class CategoriesRecyclerAdapter extends
         RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
+    private int mCategory;
+
+    // constants for view holder type
+    private static final int TYPE_NEWS = 0;
+    private static final int TYPE_LOADING = 1;
+
     private ArrayList<Article> mData;
+
+    // Item and button item listener
     private final OnCategoryItemClick listener;
+    private final OnSaveButtonItemClick saveButtonListener;
 
     public CategoriesRecyclerAdapter(ArrayList<Article> data,
-                                     OnCategoryItemClick click) {
+                                     OnCategoryItemClick click, OnSaveButtonItemClick buttonClick, int category) {
         mData = data;
         listener = click;
+        saveButtonListener = buttonClick;
+        mCategory = category;
     }
 
     @NonNull
@@ -39,22 +56,26 @@ public class CategoriesRecyclerAdapter extends
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final RecyclerView.ViewHolder holder, final int position) {
         if (holder != null) {
-            if (holder instanceof NormalViewHolder) {
-//                ((NormalViewHolder) holder).mHeadLine.setOnClickListener(new View.OnClickListener() {
-//                    @Override
-//                    public void onClick(View view) {
-//                        listener.onItemClick(mData.get(position));
-//                    }
-//                });
+            if (holder.getItemViewType() == 0) {
 
                 ((NormalViewHolder) holder).mHeadLine.setText(mData.get(position).getHeadline());
                 ((NormalViewHolder) holder).mSection.setText(mData.get(position).getSectionName());
+
+                if (mCategory == 5) {
+                    ((NormalViewHolder) holder).saveButton.setText(R.string.delete_button);
+                }
+
+                // on Save button pressed
+                ((NormalViewHolder) holder).saveButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        saveButtonListener.onButtonClick(mData.get(position), position);
+                    }
+                });
             }
         }
-
-
     }
 
     @Override
@@ -64,13 +85,18 @@ public class CategoriesRecyclerAdapter extends
 
     @Override
     public int getItemViewType(int position) {
-        return super.getItemViewType(position);
+        if (position == mData.size() - 1 && mCategory != 5) {
+            return TYPE_LOADING;
+        } else {
+            return TYPE_NEWS;
+        }
     }
 
     class NormalViewHolder extends RecyclerView.ViewHolder {
 
         TextView mHeadLine;
         TextView mSection;
+        Button saveButton;
 
         NormalViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -84,6 +110,7 @@ public class CategoriesRecyclerAdapter extends
 
             mHeadLine = itemView.findViewById(R.id.category_headline);
             mSection = itemView.findViewById(R.id.category_section);
+            saveButton = itemView.findViewById(R.id.button_item_save);
         }
     }
 
@@ -95,5 +122,14 @@ public class CategoriesRecyclerAdapter extends
 
     public interface OnCategoryItemClick {
         void onItemClick(Article position);
+    }
+
+    public interface OnSaveButtonItemClick {
+        void onButtonClick(Article position, int itemPosition);
+    }
+
+    //todo function to delete item from list
+    public void deleteItem(int position){
+        mData.remove(position);
     }
 }

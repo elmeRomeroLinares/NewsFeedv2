@@ -1,9 +1,12 @@
 package com.example.readmenewsfeedapp;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 
 import com.example.readmenewsfeedapp.fragment.GeneralPagerFragment;
 
@@ -15,13 +18,14 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
     private static final String THIRD_CATEGORY = "Business";
     private static final String FOURTH_CATEGORY = "World news";
     private static final String FIFTH_CATEGORY = "Film";
-//    public static final String SIXTH_CATEGORY = "Read Later";
+    public static final String SIXTH_CATEGORY = "Read Later";
 
     // Number of Categories
-    private int mNumberOfCategories = 5;
+    private int mNumberOfCategories = 6;
 
 
-    public CategoriesPagerAdapter(FragmentManager fm) {
+    public CategoriesPagerAdapter(FragmentManager fm)
+    {
         super(fm);
     }
 
@@ -38,8 +42,8 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
                 return GeneralPagerFragment.getInstance(FOURTH_CATEGORY,position);
             case 4:
                 return GeneralPagerFragment.getInstance(FIFTH_CATEGORY,position);
-//            case 5:
-//                return GeneralPagerFragment.getInstance(SIXTH_CATEGORY);
+            case 5:
+                return GeneralPagerFragment.getInstance(SIXTH_CATEGORY, position);
         }
         return null;
     }
@@ -63,8 +67,8 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
                 return FOURTH_CATEGORY;
             case 4:
                 return FIFTH_CATEGORY;
-//            case 5:
-//                return SIXTH_CATEGORY;
+            case 5:
+                return SIXTH_CATEGORY;
             default:
                 return null;
         }

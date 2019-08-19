@@ -17,10 +17,12 @@ import java.util.ArrayList;
 public class FetchArticles extends AsyncTaskLoader<ArrayList<Article>> {
 
     String mQueryString;
+    int page;
 
-    public FetchArticles(@NonNull Context context, String queryString) {
+    public FetchArticles(@NonNull Context context, String queryString, int page) {
         super(context);
 
+        this.page = page;
         mQueryString = queryString;
     }
 
@@ -38,7 +40,7 @@ public class FetchArticles extends AsyncTaskLoader<ArrayList<Article>> {
 
         ArrayList<Article> articlesArrayList = new ArrayList<>();
 
-        String s = new NetworkUtils().getArticleInfo(mQueryString);
+        String s = new NetworkUtils().getArticleInfo(mQueryString, page);
 
         // handle incorrect JSON input or update
         try {

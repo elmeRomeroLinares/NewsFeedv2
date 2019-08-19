@@ -6,6 +6,7 @@ import android.os.Parcelable;
 public class Article implements Parcelable {
 
     // Model fields
+
     private String sectionName;
     private String webUrl;
     private String headline;

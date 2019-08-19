@@ -3,4 +3,8 @@
     <string name="save">save</string>
     <string name="editor_insert_article_failed">Fail to Save Article</string>
     <string name="editor_insert_article_successful">Successfully Added</string>
+    <string name="delete_button">DELETE</string>
+    <string name="delete_failed">Delete Failed</string>
+    <string name="delete_successful">Delete Successful</string>
+    <string name="no_result">No Result</string>
 </resources>

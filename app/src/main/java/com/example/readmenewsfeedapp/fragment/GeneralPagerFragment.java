@@ -1,10 +1,14 @@
 package com.example.readmenewsfeedapp.fragment;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,17 +21,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.readmenewsfeedapp.CategoriesRecyclerAdapter;
 import com.example.readmenewsfeedapp.DetailActivity;
 import com.example.readmenewsfeedapp.R;
+import com.example.readmenewsfeedapp.data.DatabaseLoader;
+import com.example.readmenewsfeedapp.data.NewsContract.NewsEntry;
 import com.example.readmenewsfeedapp.model.Article;
 import com.example.readmenewsfeedapp.network.FetchArticles;
 
 import java.util.ArrayList;
 
-//import static com.example.readmenewsfeedapp.CategoriesPagerAdapter.SIXTH_CATEGORY;
-
-
 public class GeneralPagerFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<ArrayList<Article>>,
-        CategoriesRecyclerAdapter.OnCategoryItemClick {
+        CategoriesRecyclerAdapter.OnCategoryItemClick, CategoriesRecyclerAdapter.OnSaveButtonItemClick {
+
+    private static final String LOADER_TYPE = "loaderType";
 
     // bundle key receiving query param
     private static String CATEGORY = "CATEGORY";
@@ -40,17 +45,24 @@ public class GeneralPagerFragment extends Fragment
     private RecyclerView mCategoryRecyclerView;
 
     // Actual category
-    private static final String QUERY_STRING = "queryString";
+    public static final String QUERY_STRING = "queryString";
 
     // Loader ID
-    private int loaderId=0;
+    private int mLoaderId = 0;
 
     // Loader ID constant
     private static String LOADERID = "LOADERID";
 
     //Query Parameter
     private String mQuery;
+    private int page = 1;
 
+    private Boolean isScrolling = false;
+    private int currentItems;
+    private int totalItems;
+    private int scrollItems;
+
+    private ArrayList mData = new ArrayList<>();
 
     @Nullable
     @Override
@@ -59,30 +71,71 @@ public class GeneralPagerFragment extends Fragment
 
         // receive bundle extras
         mQuery = this.getArguments().getString(CATEGORY);
-        this.loaderId=this.getArguments().getInt(LOADERID);
+        mLoaderId = this.getArguments().getInt(LOADERID);
 
         View v = inflater.inflate(R.layout.fragment_categories_recycler, container, false);
 
-        // find recycler view and set layout manager
-        mCategoryRecyclerView = v.findViewById(R.id.category_recycler_view);
         final LinearLayoutManager lm = new LinearLayoutManager(getContext());
+
+
+
+        mCategoryRecyclerView = v.findViewById(R.id.category_recycler_view);
         mCategoryRecyclerView.setLayoutManager(lm);
+        // find recycler view and set layout manager
+        mCategoryRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
 
-//        if (mQuery != SIXTH_CATEGORY) {
-//            // Create a bundle for the async task loader
-//            Bundle queryBundle = new Bundle();
-//            queryBundle.putString(QUERY_STRING, mQuery);
-//            LoaderManager.getInstance(getActivity()).restartLoader(0, queryBundle, this);
-//        } else {
-//            // Loader from database
-//        }
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true;
+                }
+            }
 
-        // Create a bundle for the async task loader
-        Bundle queryBundle = new Bundle();
-        queryBundle.putString(QUERY_STRING, mQuery);
-        LoaderManager.getInstance(getActivity()).restartLoader(loaderId, queryBundle, this);
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                currentItems = lm.getChildCount();
+                totalItems = lm.getItemCount();
+                scrollItems = lm.findFirstVisibleItemPosition();
+
+                if (isScrolling && (currentItems + scrollItems == totalItems)) {
+                    isScrolling = false;
+
+                    mCategoryRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            page++;
+                            loadFromApi();
+                        }
+                    });
+                }
+            }
+        });
+
+        if (mLoaderId != 5) {
+            // Create a bundle for the async task loader
+           loadFromApi();
+        } else {
+            loadReadLater();
+        }
 
         return v;
+    }
+
+    private void loadFromApi() {
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(QUERY_STRING, mQuery);
+        //queryBundle.putInt(LOADER_TYPE, mLoaderId);
+        LoaderManager.getInstance(getActivity()).initLoader(mLoaderId, queryBundle, this);
+    }
+
+    private void loadReadLater() {
+        //TODO restart loader was needed to call to make refresh data
+        Bundle queryBundle = new Bundle();
+        queryBundle.putInt(LOADER_TYPE, mLoaderId);
+        LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
     }
 
     @Override
@@ -95,12 +148,18 @@ public class GeneralPagerFragment extends Fragment
     public Loader<ArrayList<Article>> onCreateLoader(int id, @Nullable Bundle args) {
 
         if (args != null) {
-            String queryString = args.getString(QUERY_STRING);
-            return new FetchArticles(getContext(), queryString);
+            if (id != 5) {
+                String queryString = args.getString(QUERY_STRING);
+                return new FetchArticles(getContext(), queryString, page);
+            } else {
+                return new DatabaseLoader(getContext());
+            }
+
         } else {
             return null;
         }
     }
+
 
     @Override
     public void onLoadFinished(@NonNull Loader<ArrayList<Article>> loader,
@@ -111,14 +170,14 @@ public class GeneralPagerFragment extends Fragment
     }
 
     private void bindData(ArrayList<Article> data) {
-
-        categoriesRecyclerAdapter = new CategoriesRecyclerAdapter(data, this);
+        mData.addAll(data);
+        categoriesRecyclerAdapter = new CategoriesRecyclerAdapter(mData, this, this, mLoaderId);
         mCategoryRecyclerView.setAdapter(categoriesRecyclerAdapter);
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<ArrayList<Article>> loader) {
-
+        categoriesRecyclerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -127,16 +186,60 @@ public class GeneralPagerFragment extends Fragment
         intent.putExtra(DETAILBUNDLE, news);
 
         startActivity(intent);
-
     }
 
     public static GeneralPagerFragment getInstance(String query, int LoaderId) {
         Bundle bundle = new Bundle();
         bundle.putString(CATEGORY, query);
-        bundle.putInt(LOADERID,LoaderId);
+        bundle.putInt(LOADERID, LoaderId);
         GeneralPagerFragment fragment = new GeneralPagerFragment();
         fragment.setArguments(bundle);
 
         return fragment;
+    }
+
+    @Override
+    public void onButtonClick(Article article, int position) {
+        if (mLoaderId != 5) {
+            // ContentValues object
+            ContentValues values = new ContentValues();
+            values.put(NewsEntry.COLUMN_ARTICLE_BODY, article.getBody());
+            values.put(NewsEntry.COLUMN_ARTICLE_THUMBNAIL, article.getThumbnail());
+            values.put(NewsEntry.COLUMN_ARTICLE_HEADLINE, article.getHeadline());
+            values.put(NewsEntry.COLUMN_ARTICLE_WEB_URL, article.getWebUrl());
+            values.put(NewsEntry.COLUMN_ARTICLE_SECTION, article.getSectionName());
+
+            // Insert new article into provider, returning content URI for new article
+            Uri newUri = getContext().
+                    getContentResolver().insert(NewsEntry.CONTENT_URI, values);
+
+            // Toast message showing insertion result
+            if (newUri == null) {
+                Toast.makeText(getContext(), getString(R.string.editor_insert_article_failed),
+                        Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), getString(R.string.editor_insert_article_successful),
+                        Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            String[] slectionArgs = {article.getHeadline()};
+            int deletedArticle = getContext().getContentResolver().delete(NewsEntry.CONTENT_URI,
+                    NewsEntry.COLUMN_ARTICLE_HEADLINE + "=?", slectionArgs);
+
+            if (deletedArticle < 0) {
+                Toast.makeText(getContext(), getString(R.string.delete_failed), Toast.LENGTH_SHORT).show();
+            } else {
+                Toast.makeText(getContext(), getString(R.string.delete_successful), Toast.LENGTH_SHORT).show();
+                //TODO call delete function, and update view calling notify data set changed
+                categoriesRecyclerAdapter.deleteItem(position);
+                categoriesRecyclerAdapter.notifyDataSetChanged();
+            }
+        }
+
+
+    }
+
+    public void reload() {
+        loadReadLater();
     }
 }
