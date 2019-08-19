@@ -1,9 +1,13 @@
 package com.example.readmenewsfeedapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.ListView;
@@ -24,6 +28,7 @@ import com.example.readmenewsfeedapp.network.FetchArticles;
 
 import java.util.ArrayList;
 
+import static com.example.readmenewsfeedapp.fragment.GeneralPagerFragment.DETAILBUNDLE;
 import static com.example.readmenewsfeedapp.fragment.GeneralPagerFragment.QUERY_STRING;
 
 public class PanelSearchView extends AppCompatActivity
@@ -37,7 +42,7 @@ public class PanelSearchView extends AppCompatActivity
 
     private TextView mEmptyView;
 
-    private ArrayList<String> mData = new ArrayList<>();
+    private ArrayList<Article> mData = new ArrayList<>();
 
     private int searchLoaderID = 100;
 
@@ -52,10 +57,19 @@ public class PanelSearchView extends AppCompatActivity
         mListView = findViewById(R.id.list);
         mEmptyView = findViewById(R.id.emptyView);
 
-        mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, mData);
-
-        mListView.setAdapter(mAdapter);
         mListView.setEmptyView(mEmptyView);
+
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent startIntent = new Intent(PanelSearchView.this, DetailActivity.class);
+                startIntent.putExtra(DETAILBUNDLE, mData.get(i));
+                startActivity(startIntent);
+                finish();
+            }
+        });
+
+
     }
 
     @Override
@@ -80,8 +94,7 @@ public class PanelSearchView extends AppCompatActivity
 
             @Override
             public boolean onQueryTextChange(String newText) {
-                mAdapter.getFilter().filter(newText);
-                return true;
+                return false;
             }
         });
         return super.onCreateOptionsMenu(menu);
@@ -101,14 +114,20 @@ public class PanelSearchView extends AppCompatActivity
 
     @Override
     public void onLoadFinished(@NonNull Loader<ArrayList<Article>> loader, ArrayList<Article> data) {
+
+        mData = data;
+
+        ArrayList<String> listData = new ArrayList<>();
+
         for (int i = 0; i < data.size(); i++) {
-            mData.add(data.get(i).getHeadline());
+            listData.add(data.get(i).getHeadline());
         }
 
-        Log.d("PanelSearchView", mData.toString());
+        mAdapter = new ArrayAdapter(this, android.R.layout.simple_list_item_1, listData);
+        mListView.setAdapter(mAdapter);
 
-        mListView.invalidateViews();
-        ((BaseAdapter) mListView.getAdapter()).notifyDataSetChanged();
+        //mAdapter.notifyDataSetInvalidated();
+
     }
 
     @Override

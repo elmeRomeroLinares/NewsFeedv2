@@ -38,7 +38,7 @@ public class GeneralPagerFragment extends Fragment
     private static String CATEGORY = "CATEGORY";
 
     // Detail Activity Bundle key
-    private static String DETAILBUNDLE = "detailData";
+    public static String DETAILBUNDLE = "detailData";
 
     // Recycler view adapter variable
     private CategoriesRecyclerAdapter categoriesRecyclerAdapter;
@@ -127,7 +127,6 @@ public class GeneralPagerFragment extends Fragment
     private void loadFromApi() {
         Bundle queryBundle = new Bundle();
         queryBundle.putString(QUERY_STRING, mQuery);
-        //queryBundle.putInt(LOADER_TYPE, mLoaderId);
         LoaderManager.getInstance(getActivity()).initLoader(mLoaderId, queryBundle, this);
     }
 
@@ -135,7 +134,7 @@ public class GeneralPagerFragment extends Fragment
         //TODO restart loader was needed to call to make refresh data
         Bundle queryBundle = new Bundle();
         queryBundle.putInt(LOADER_TYPE, mLoaderId);
-        LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
+        LoaderManager.getInstance(getActivity()).initLoader(mLoaderId, queryBundle, this);
     }
 
     @Override

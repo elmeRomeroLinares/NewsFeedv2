@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageSelected(int position) {
                 if (position == 5) {
-                    Fragment page = getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
+                    Fragment page = getSupportFragmentManager().
+                            findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
                     ((GeneralPagerFragment) page).reload();
                 }
             }
