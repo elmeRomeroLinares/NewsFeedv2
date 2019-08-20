@@ -2,13 +2,20 @@ package com.example.readmenewsfeedapp.fragment;
 
 import android.content.ContentValues;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -29,9 +36,15 @@ import com.example.readmenewsfeedapp.network.FetchArticles;
 
 import java.util.ArrayList;
 
+import static android.view.View.GONE;
+
 public class GeneralPagerFragment extends Fragment
         implements LoaderManager.LoaderCallbacks<ArrayList<Article>>,
         CategoriesRecyclerAdapter.OnCategoryItemClick, CategoriesRecyclerAdapter.OnSaveButtonItemClick {
+
+    ProgressBar mProgresBar;
+
+    TextView mNoConnectionTV;
 
     private static final String LOADER_TYPE = "loaderType";
 
@@ -76,27 +89,24 @@ public class GeneralPagerFragment extends Fragment
 
         View v = inflater.inflate(R.layout.fragment_categories_recycler, container, false);
 
+        mProgresBar = v.findViewById(R.id.progress_bar_pager);
+        mNoConnectionTV = v.findViewById(R.id.no_connection_tv);
+
         return v;
     }
 
-//    @Override
-//    public void onResume() {
-//        super.onResume();
-//        Log.d("ON RESUME", String.valueOf(mLoaderId));
-//        getMoreFromApi();
-//    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+
         super.onViewCreated(view, savedInstanceState);
 
         final LinearLayoutManager lm = new LinearLayoutManager(getContext());
 
-
-
         mCategoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         mCategoryRecyclerView.setLayoutManager(lm);
         // find recycler view and set layout manager
+
         mCategoryRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
@@ -115,7 +125,7 @@ public class GeneralPagerFragment extends Fragment
                 totalItems = lm.getItemCount();
                 scrollItems = lm.findFirstVisibleItemPosition();
 
-                if (isScrolling && (currentItems + scrollItems == totalItems)) {
+                if (isScrolling && (currentItems + scrollItems == totalItems) && mLoaderId != 5) {
                     isScrolling = false;
 
                     mCategoryRecyclerView.post(new Runnable() {
@@ -131,8 +141,14 @@ public class GeneralPagerFragment extends Fragment
         });
 
         if (mLoaderId != 5) {
-            // Create a bundle for the async task loader
-            loadFromApi();
+            if (isNetworkConnected()) {
+                mProgresBar.setVisibility(View.VISIBLE);
+                loadFromApi();
+
+
+            } else {
+                mNoConnectionTV.setVisibility(View.VISIBLE);
+            }
         } else {
             loadReadLater();
         }
@@ -148,7 +164,7 @@ public class GeneralPagerFragment extends Fragment
         //TODO restart loader was needed to call to make refresh data
         Bundle queryBundle = new Bundle();
         queryBundle.putInt(LOADER_TYPE, mLoaderId);
-        LoaderManager.getInstance(getActivity()).initLoader(mLoaderId, queryBundle, this);
+        LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
     }
 
     @NonNull
@@ -173,13 +189,13 @@ public class GeneralPagerFragment extends Fragment
     public void onLoadFinished(@NonNull Loader<ArrayList<Article>> loader,
                                ArrayList<Article> data) {
 
+        mProgresBar.setVisibility(GONE);
+
         // bind data with Recycler View Adapter
         bindData(data);
     }
 
     private void bindData(ArrayList<Article> data) {
-
-//        mData.addAll(data);
 
         if (categoriesRecyclerAdapter == null) {
             categoriesRecyclerAdapter = new CategoriesRecyclerAdapter(data, this, this, mLoaderId);
@@ -188,7 +204,7 @@ public class GeneralPagerFragment extends Fragment
             if (mCategoryRecyclerView.getAdapter() == null) {
                 mCategoryRecyclerView.setAdapter(categoriesRecyclerAdapter);
             }
-            categoriesRecyclerAdapter.addItems(data);
+            categoriesRecyclerAdapter.addItems(data, mLoaderId);
         }
 
     }
@@ -250,7 +266,6 @@ public class GeneralPagerFragment extends Fragment
                 Toast.makeText(getContext(), getString(R.string.delete_successful), Toast.LENGTH_SHORT).show();
                 //TODO call delete function, and update view calling notify data set changed
                 categoriesRecyclerAdapter.deleteItem(position);
-                categoriesRecyclerAdapter.notifyDataSetChanged();
             }
         }
 
@@ -258,12 +273,42 @@ public class GeneralPagerFragment extends Fragment
     }
 
     private void getMoreFromApi() {
-        Bundle queryBundle = new Bundle();
-        queryBundle.putString(QUERY_STRING, mQuery);
-        LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
+        if (isNetworkConnected()) {
+            Bundle queryBundle = new Bundle();
+            queryBundle.putString(QUERY_STRING, mQuery);
+            LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
+        }
     }
 
     public void reload() {
         loadReadLater();
+    }
+
+    public boolean isNetworkConnected() {
+
+        ConnectivityManager cm = (ConnectivityManager) getContext().
+                getSystemService(getActivity().CONNECTIVITY_SERVICE);
+
+        if (cm != null) {
+            if (Build.VERSION.SDK_INT < 23) {
+                final NetworkInfo ni = cm.getActiveNetworkInfo();
+
+                if (ni != null) {
+                    return (ni.isConnected() && (ni.getType() == ConnectivityManager.TYPE_WIFI ||
+                            ni.getType() == ConnectivityManager.TYPE_MOBILE));
+                }
+            } else {
+                final Network n = cm.getActiveNetwork();
+
+                if (n != null) {
+                    final NetworkCapabilities nc = cm.getNetworkCapabilities(n);
+
+                    return (nc.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) ||
+                            nc.hasTransport(NetworkCapabilities.TRANSPORT_WIFI));
+                }
+            }
+        }
+
+        return false;
     }
 }

@@ -126,10 +126,14 @@ public class CategoriesRecyclerAdapter extends
     //todo function to delete item from list
     public void deleteItem(int position){
         mData.remove(position);
+        notifyDataSetChanged();
     }
 
-    public void addItems(ArrayList<Article> items) {
+    public void addItems(ArrayList<Article> items, int position) {
         if (mData != null){
+            if (position == 5) {
+                mData.clear();
+            }
             mData.addAll(items);
             notifyDataSetChanged();
         }
