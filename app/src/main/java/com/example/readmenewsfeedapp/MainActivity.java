@@ -56,26 +56,26 @@ public class MainActivity extends AppCompatActivity {
         // Find pager and tab by ID
         mNewsCategoriesVP = findViewById(R.id.pager);
         //TODO new listener to kmow when tab was selected and perform read later refresh
-        mNewsCategoriesVP.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-                if (position == 5) {
-                    Fragment page = getSupportFragmentManager().
-                            findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
-                    ((GeneralPagerFragment) page).reload();
-                }
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
+//        mNewsCategoriesVP.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+//
+//            }
+//
+//            @Override
+//            public void onPageSelected(int position) {
+//                if (position == 5) {
+//                    Fragment page = getSupportFragmentManager().
+//                            findFragmentByTag("android:switcher:" + R.id.pager + ":" + position);
+//                    ((GeneralPagerFragment) page).reload();
+//                }
+//            }
+//
+//            @Override
+//            public void onPageScrollStateChanged(int state) {
+//
+//            }
+//        });
         mTabNewsCategories = findViewById(R.id.tab_layout);
 
         // News pager adapter object

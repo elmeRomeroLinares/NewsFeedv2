@@ -1,5 +1,7 @@
 package com.example.readmenewsfeedapp;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -31,6 +33,8 @@ public class CategoriesPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
+
+        Log.d("PAGER POSITION", String.valueOf(position));
         switch (position) {
             case 0:
                 return GeneralPagerFragment.getInstance(FIRST_CATEGORY,position);

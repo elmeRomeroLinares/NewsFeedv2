@@ -1,6 +1,7 @@
 package com.example.readmenewsfeedapp.network;
 
 import android.net.Uri;
+import android.util.Log;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -41,12 +42,14 @@ public class NetworkUtils {
                     .appendQueryParameter(TO_DATE, "2019-07-21")
                     .appendQueryParameter(FIELDS, "all")
                     .appendQueryParameter(PAGE, String.valueOf(mPageNumber))
-                    .appendQueryParameter(PAGE_SIZE, "30")
+                    .appendQueryParameter(PAGE_SIZE, "10")
                     .appendQueryParameter(ASK, newsCategory)
                     .appendQueryParameter(KEY, "302d4a96-9bc7-49d3-8f61-7541b4bd9d17")
                     .build();
 
             URL requestURL = new URL(builtURI.toString());
+
+            Log.d("URL: ", requestURL.toString());
 
             urlConnection = (HttpsURLConnection) requestURL.openConnection();
             urlConnection.setRequestMethod("GET");

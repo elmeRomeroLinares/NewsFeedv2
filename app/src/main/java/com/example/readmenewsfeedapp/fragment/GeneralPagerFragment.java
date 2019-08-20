@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -75,11 +76,25 @@ public class GeneralPagerFragment extends Fragment
 
         View v = inflater.inflate(R.layout.fragment_categories_recycler, container, false);
 
+        return v;
+    }
+
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        Log.d("ON RESUME", String.valueOf(mLoaderId));
+//        getMoreFromApi();
+//    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         final LinearLayoutManager lm = new LinearLayoutManager(getContext());
 
 
 
-        mCategoryRecyclerView = v.findViewById(R.id.category_recycler_view);
+        mCategoryRecyclerView = view.findViewById(R.id.category_recycler_view);
         mCategoryRecyclerView.setLayoutManager(lm);
         // find recycler view and set layout manager
         mCategoryRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -107,7 +122,8 @@ public class GeneralPagerFragment extends Fragment
                         @Override
                         public void run() {
                             page++;
-                            loadFromApi();
+                            Log.d("# de items", String.valueOf(page));
+                            getMoreFromApi();
                         }
                     });
                 }
@@ -116,12 +132,10 @@ public class GeneralPagerFragment extends Fragment
 
         if (mLoaderId != 5) {
             // Create a bundle for the async task loader
-           loadFromApi();
+            loadFromApi();
         } else {
             loadReadLater();
         }
-
-        return v;
     }
 
     private void loadFromApi() {
@@ -137,15 +151,10 @@ public class GeneralPagerFragment extends Fragment
         LoaderManager.getInstance(getActivity()).initLoader(mLoaderId, queryBundle, this);
     }
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-    }
-
     @NonNull
     @Override
     public Loader<ArrayList<Article>> onCreateLoader(int id, @Nullable Bundle args) {
-
+        Log.v("LOADED", String.valueOf(mLoaderId));
         if (args != null) {
             if (id != 5) {
                 String queryString = args.getString(QUERY_STRING);
@@ -169,14 +178,24 @@ public class GeneralPagerFragment extends Fragment
     }
 
     private void bindData(ArrayList<Article> data) {
-        mData.addAll(data);
-        categoriesRecyclerAdapter = new CategoriesRecyclerAdapter(mData, this, this, mLoaderId);
-        mCategoryRecyclerView.setAdapter(categoriesRecyclerAdapter);
+
+//        mData.addAll(data);
+
+        if (categoriesRecyclerAdapter == null) {
+            categoriesRecyclerAdapter = new CategoriesRecyclerAdapter(data, this, this, mLoaderId);
+            mCategoryRecyclerView.setAdapter(categoriesRecyclerAdapter);
+        } else {
+            if (mCategoryRecyclerView.getAdapter() == null) {
+                mCategoryRecyclerView.setAdapter(categoriesRecyclerAdapter);
+            }
+            categoriesRecyclerAdapter.addItems(data);
+        }
+
     }
 
     @Override
     public void onLoaderReset(@NonNull Loader<ArrayList<Article>> loader) {
-        categoriesRecyclerAdapter.notifyDataSetChanged();
+
     }
 
     @Override
@@ -236,6 +255,12 @@ public class GeneralPagerFragment extends Fragment
         }
 
 
+    }
+
+    private void getMoreFromApi() {
+        Bundle queryBundle = new Bundle();
+        queryBundle.putString(QUERY_STRING, mQuery);
+        LoaderManager.getInstance(getActivity()).restartLoader(mLoaderId, queryBundle, this);
     }
 
     public void reload() {

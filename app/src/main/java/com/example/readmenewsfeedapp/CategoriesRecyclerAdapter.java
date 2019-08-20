@@ -1,19 +1,14 @@
 package com.example.readmenewsfeedapp;
 
-import android.content.ContentValues;
-import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.readmenewsfeedapp.data.NewsContract;
 import com.example.readmenewsfeedapp.model.Article;
 
 import java.util.ArrayList;
@@ -131,5 +126,12 @@ public class CategoriesRecyclerAdapter extends
     //todo function to delete item from list
     public void deleteItem(int position){
         mData.remove(position);
+    }
+
+    public void addItems(ArrayList<Article> items) {
+        if (mData != null){
+            mData.addAll(items);
+            notifyDataSetChanged();
+        }
     }
 }
